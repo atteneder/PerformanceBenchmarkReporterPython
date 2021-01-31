@@ -55,6 +55,7 @@ def create_load_time_report(
     output_path,
     report_names,
     reports,
+    test_prefix,
     group_name,
     all_stats=False
 ):
@@ -78,7 +79,10 @@ def create_load_time_report(
             results = [report.get_result_by_name(
                 ref_result.Name) for report in reports]
 
-            test_name = '.'.join(ref_result.Name.split('.')[3:])
+            if not ref_result.Name.startswith(test_prefix):
+                continue
+
+            test_name = ref_result.Name[len(test_prefix):].lstrip('.')
             output_file.write(test_name)
 
             for ref_grp in ref_result.SampleGroups:
@@ -96,21 +100,41 @@ def create_load_time_report(
 
 def main():
     report_paths = [
-        '/Users/aa/Library/Application Support/Andreas Atteneder/glTFastDemo/2.5.1/PerformanceTestResults.json',
-        '/Users/aa/Library/Application Support/Andreas Atteneder/glTFastDemo/async3_json/PerformanceTestResults.json',
-        # '/Users/aa/Library/Application Support/Andreas Atteneder/glTFastDemo/async4_base64/PerformanceTestResults.json',
-        # '/Users/aa/Library/Application Support/Andreas Atteneder/glTFastDemo/async5_non_readable/PerformanceTestResults.json',
-        '/Users/aa/Library/Application Support/Andreas Atteneder/glTFastDemo/async6_testfix/PerformanceTestResults.json',
-        '/Users/aa/Library/Application Support/Andreas Atteneder/glTFastDemo/async7_dracojobs/PerformanceTestResults.json',
+        'input_data/mac_intel/2.5.1/PerformanceTestResults.json',
+        'input_data/mac_intel/async3_json/PerformanceTestResults.json',
+        # 'input_data/mac_intel/async4_base64/PerformanceTestResults.json',
+        # 'input_data/mac_intel/async5_non_readable/PerformanceTestResults.json',
+        'input_data/mac_intel/async6_testfix/PerformanceTestResults.json',
+        # 'input_data/mac_intel/3.0.0/PerformanceTestResults.json',
     ]
     report_paths = [Path(x) for x in report_paths]
     report_names = [x.parent.name for x in report_paths]
     reports = [load_report(report_path) for report_path in report_paths]
 
     create_load_time_report(
-        '/Users/aa/u/PerformanceBenchmarkReporterPython/result.csv', report_names, reports, 'LoadTime')
-    create_load_time_report('/Users/aa/u/PerformanceBenchmarkReporterPython/result_frame_time.csv',
-                            report_names, reports, 'FrameTime', all_stats=True)
+        'output/smooth_load_times.csv',
+        report_names,
+        reports,
+        'GLTFast.Tests.SampleModelsTest.SmoothLoading',
+        'LoadTime'
+    )
+
+    create_load_time_report(
+        'output/smooth_frame_times.csv',
+        report_names,
+        reports,
+        'GLTFast.Tests.SampleModelsTest.SmoothLoading',
+        'FrameTime',
+        all_stats=True
+    )
+
+    create_load_time_report(
+        'output/fast_load_times.csv',
+        report_names,
+        reports,
+        'GLTFast.Tests.SampleModelsTest.UninterruptedLoading',
+        'LoadTime'
+    )
 
 
 if __name__ == '__main__':
