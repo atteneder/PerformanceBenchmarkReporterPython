@@ -68,10 +68,11 @@ def create_load_time_report(
         output_file.write('Test Name')
 
         for name in report_names:
-            output_file.write(f';{name}')
             if all_stats:
                 output_file.write(
                     f';{name}_Min;{name}_Max;{name}_Median;{name}_Average')
+            else:
+                output_file.write(f';{name}')
 
         output_file.write('\n')
 
@@ -92,7 +93,7 @@ def create_load_time_report(
                     for grp in grps:
                         if all_stats:
                             output_file.write(
-                                f';;{grp.Min};{grp.Max};{grp.Median};{grp.Average}')
+                                f';{grp.Min};{grp.Max};{grp.Median};{grp.Average}')
                         else:
                             output_file.write(f';{grp.Average}')
             output_file.write('\n')
