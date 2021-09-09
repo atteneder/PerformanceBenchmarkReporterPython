@@ -1,7 +1,12 @@
+import argparse
+
 from dataclasses import dataclass
 from dataclasses_json import dataclass_json
 from typing import List
 from pathlib import Path
+
+
+CSV_SEP = ','
 
 
 def remove_test_prefix(name: str):
@@ -78,9 +83,9 @@ def create_load_time_report(
         for name in report_names:
             if all_stats:
                 output_file.write(
-                    f';{name}_Min;{name}_Max;{name}_Median;{name}_Average')
+                    f'{CSV_SEP}{name}_Min{CSV_SEP}{name}_Max{CSV_SEP}{name}_Median{CSV_SEP}{name}_Average')
             else:
-                output_file.write(f';{name}')
+                output_file.write(f'{CSV_SEP}{name}')
 
         output_file.write('\n')
 
@@ -111,9 +116,9 @@ def create_load_time_report(
 
                     for grp in grps:
                         if all_stats:
-                            output_row += f';{grp.Min};{grp.Max};{grp.Median};{grp.Average}'
+                            output_row += f'{CSV_SEP}{grp.Min}{CSV_SEP}{grp.Max}{CSV_SEP}{grp.Median}{CSV_SEP}{grp.Average}'
                         else:
-                            output_row += f';{grp.Average}'
+                            output_row += f'{CSV_SEP}{grp.Average}'
 
             if output_row:
                 output_file.write(output_row)
@@ -121,54 +126,51 @@ def create_load_time_report(
 
 
 def main():
-    report_paths = [
-        # 'input_data/mac_intel/2.6.0/PerformanceTestResults.json',
-        # 'input_data/mac_intel/async3_json/PerformanceTestResults.json',
-        # 'input_data/mac_intel/async4_base64/PerformanceTestResults.json',
-        # 'input_data/mac_intel/async5_non_readable/PerformanceTestResults.json',
-        # 'input_data/mac_intel/async6_testfix/PerformanceTestResults.json',
-        # 'input_data/mac_intel/3.0.0/PerformanceTestResults.json',
-        # 'input_data/mac_intel/3.0.0-1/PerformanceTestResults.json',
-        # 'input_data/mac_intel/3.0.2/PerformanceTestResults.json',
-        # 'input_data/mac_intel/3.1.0/PerformanceTestResults.json',
-        # 'input_data/mac_intel/4.2.0/PerformanceTestResults.json',
-        'input_data/mac_intel/4.2.1/PerformanceTestResults.json',
-        'input_data/mac_intel/4.3.0_burst/PerformanceTestResults.json',
+    parser = argparse.ArgumentParser()
 
-        # 'input_data/mac_m1/2.6.0_rosetta/PerformanceTestResults.json',
-        # 'input_data/mac_m1/2.6.0/PerformanceTestResults.json',
-        # 'input_data/mac_m1/3.0.0/PerformanceTestResults.json',
+    parser.add_argument(
+        '--prefix',
+        type=str,
+    )
 
-        # 'input_data/win/2.6.0/PerformanceTestResults.json',
-        # 'input_data/win/3.0.0/PerformanceTestResults.json',
-    ]
-    report_paths = [Path(x) for x in report_paths]
+    parser.add_argument(
+        '--sample-group',
+        type=str,
+        default='Time',
+        dest='sample_group',
+    )
+
+    parser.add_argument(
+        '--output',
+        type=str,
+    )
+
+    parser.add_argument(
+        '--all-stats',
+        action='store_true',
+        dest='all_stats',
+    )
+
+    parser.add_argument(
+        'paths',
+        type=str,
+        nargs='+',
+    )
+
+    args = parser.parse_args()
+
+    report_paths = [Path(x) for x in args.paths]
     report_names = [x.parent.name for x in report_paths]
     reports = [load_report(report_path) for report_path in report_paths]
+    out_path = Path(args.output)
 
     create_load_time_report(
-        'output/smooth_load_times.csv',
+        out_path,
         report_names,
         reports,
-        'SampleModelsTest.SmoothLoading',
-        'LoadTime'
-    )
-
-    create_load_time_report(
-        'output/smooth_frame_times.csv',
-        report_names,
-        reports,
-        'SampleModelsTest.SmoothLoading',
-        'Time',
-        all_stats=True
-    )
-
-    create_load_time_report(
-        'output/fast_load_times.csv',
-        report_names,
-        reports,
-        'SampleModelsTest.UninterruptedLoading',
-        'LoadTime'
+        args.prefix,
+        args.sample_group,
+        args.all_stats
     )
 
 

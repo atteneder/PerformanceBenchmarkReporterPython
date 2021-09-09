@@ -5,12 +5,68 @@
     "version": "0.2.0",
     "configurations": [
         {
-            "name": "Python: PerformanceReport",
+            "name": "Python: Smooth",
             "type": "python",
             "request": "launch",
             "program": "${workspaceFolder}/unity_performance/main.py",
             "console": "integratedTerminal",
-            "cwd": "${workspaceFolder}"
+            "cwd": "${workspaceFolder}",
+            "args": [
+                "--prefix", "SampleModelsTest.SmoothLoading",
+                "--sample-group", "LoadTime",
+                // "--prefix", "SampleModelsTest.UninterruptedLoading",
+                "--output", "output/smooth_total_time.csv",
+                "input_data/mac_intel/4.2.1/PerformanceTestResults.json",
+                "input_data/mac_intel/4.3.0_burst/PerformanceTestResults.json"
+            ]
+        },
+        {
+            "name": "Python: Smooth Frames",
+            "type": "python",
+            "request": "launch",
+            "program": "${workspaceFolder}/unity_performance/main.py",
+            "console": "integratedTerminal",
+            "cwd": "${workspaceFolder}",
+            "args": [
+                "--prefix", "SampleModelsTest.SmoothLoading",
+                // "--prefix", "SampleModelsTest.UninterruptedLoading",
+                // "--sample-group", "total",
+                "--all-stats",
+                "--output", "output/smooth_frame_time.csv",
+                "input_data/mac_intel/4.2.1/PerformanceTestResults.json",
+                "input_data/mac_intel/4.3.0_burst/PerformanceTestResults.json"
+            ]
+        },
+        {
+            "name": "Python: Fast",
+            "type": "python",
+            "request": "launch",
+            "program": "${workspaceFolder}/unity_performance/main.py",
+            "console": "integratedTerminal",
+            "cwd": "${workspaceFolder}",
+            "args": [
+                "--prefix", "SampleModelsTest.UninterruptedLoading",
+                "--sample-group", "LoadTime",
+                "--output", "output/fast_total_time.csv",
+                "input_data/mac_intel/4.2.1/PerformanceTestResults.json",
+                "input_data/mac_intel/4.3.0_burst/PerformanceTestResults.json"
+            ]
+        },
+        {
+            "name": "Python: Jobs",
+            "type": "python",
+            "request": "launch",
+            "program": "${workspaceFolder}/unity_performance/main.py",
+            "console": "integratedTerminal",
+            "cwd": "${workspaceFolder}",
+            "args": [
+                "--prefix", "Jobs",
+                "--output", "output/jobs.csv",
+                "input_data/mac_intel/jobs/PerformanceTestResults.json",
+                "input_data/mac_intel/jobs_burst/PerformanceTestResults.json",
+                "input_data/mac_intel/jobs_burst_optimized/PerformanceTestResults.json",
+                "input_data/mac_intel/jobs_burst_batch/PerformanceTestResults.json"
+            ]
         }
     ]
 }
