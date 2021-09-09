@@ -8,12 +8,18 @@ from pathlib import Path
 
 CSV_SEP = ','
 
+TEST_PREFIXES = [
+    'GLTFast.Tests.',
+    'GLTFTest.',
+]
+
 
 def remove_test_prefix(name: str):
     result = name
-    result = result.removeprefix('GLTFast.Tests.')
-    result = result.removeprefix('GLTFTest.')
-    return result
+    for prefix in TEST_PREFIXES:
+        if result.startswith(prefix):
+            return prefix, result[len(prefix):]
+    return None, result
 
 
 @dataclass_json
@@ -51,7 +57,7 @@ class Report:
 
     def get_result_by_name(self, name):
         for r in self.Results:
-            ref_name = remove_test_prefix(r.Name)
+            _, ref_name = remove_test_prefix(r.Name)
             if ref_name == name:
                 return r
         return None
@@ -90,14 +96,14 @@ def create_load_time_report(
         output_file.write('\n')
 
         for ref_result in ref.Results:
-            ref_result_name = remove_test_prefix(ref_result.Name)
+            prefix, ref_result_name = remove_test_prefix(ref_result.Name)
             results = [report.get_result_by_name(ref_result_name
                                                  ) for report in reports]
 
-            if not remove_test_prefix(ref_result.Name).startswith(test_prefix):
+            if not ref_result_name.startswith(test_prefix):
                 continue
 
-            test_name = ref_result.Name[len(test_prefix):].lstrip('.')
+            test_name = ref_result.Name[len(prefix)+len(test_prefix):].lstrip('.')
             output_row = test_name
 
             for ref_grp in ref_result.SampleGroups:
